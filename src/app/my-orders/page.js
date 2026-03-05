@@ -119,7 +119,7 @@ export default function MyOrdersPage() {
       return 'text-green-600';
     } else if (statusLower.includes('processing') || statusLower.includes('pending')) {
       return 'text-orange-600';
-    } else if (statusLower.includes('shipped') || statusLower.includes('on the way')) {
+    } else if (statusLower.includes('shipping') || statusLower.includes('on the way')) {
       return 'text-blue-600';
     } else if (statusLower.includes('cancelled')) {
       return 'text-red-600';
@@ -135,7 +135,7 @@ export default function MyOrdersPage() {
       return 'bg-green-100';
     } else if (statusLower.includes('processing') || statusLower.includes('pending')) {
       return 'bg-orange-100';
-    } else if (statusLower.includes('shipped') || statusLower.includes('on the way')) {
+    } else if (statusLower.includes('shipping') || statusLower.includes('on the way')) {
       return 'bg-blue-100';
     } else if (statusLower.includes('cancelled')) {
       return 'bg-red-100';

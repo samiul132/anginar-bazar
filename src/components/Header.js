@@ -528,7 +528,7 @@ export default function Header({ cartCount = 0 }) {
 
               {/* Shop by Category - Click to Toggle Dropdown */}
               <div className="relative px-4 flex-shrink-0">
-                {/* ✅ Click করলে menu খুলবে/বন্ধ হবে */}
+                {/* Click menu open */}
                 <button
                   onClick={toggleCategoryMenu}
                   className={`flex items-center gap-2 px-3 py-1.5 rounded transition-colors cursor-pointer ${
@@ -563,7 +563,6 @@ export default function Header({ cartCount = 0 }) {
                       {categories.map((category, index) => (
                         <div
                           key={category.id}
-                          // ✅ Parent category তে hover করলে subcategory দেখাবে
                           onMouseEnter={() => setSelectedCategory(index)}
                         >
                           <Link
@@ -589,7 +588,7 @@ export default function Header({ cartCount = 0 }) {
                                 </div>
                               )}
                             </div>
-                            <span className="font-medium text-sm flex-1">{category.category_name}</span>
+                            <span className="font-medium text-md flex-1">{category.category_name}</span>
                             {category.subcategories && category.subcategories.length > 0 && (
                               <ChevronRight size={16} className="flex-shrink-0" />
                             )}
@@ -627,7 +626,7 @@ export default function Header({ cartCount = 0 }) {
                                 <div className="w-full h-full bg-gray-200"></div>
                               )}
                             </div>
-                            <span className="text-sm font-medium">{subcat.category_name}</span>
+                            <span className="text-md font-medium">{subcat.category_name}</span>
                           </Link>
                         ))}
                       </div>

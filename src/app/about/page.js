@@ -62,7 +62,7 @@ export default function AboutPage() {
 
             <Truck className="mx-auto text-[#FF5533]" size={35} />
 
-            <h3 className="font-semibold text-lg mt-3">
+            <h3 className="font-semibold text-lg text-gray-800 mt-3">
               Fast Delivery
             </h3>
 
@@ -79,7 +79,7 @@ export default function AboutPage() {
 
             <ShieldCheck className="mx-auto text-[#FF5533]" size={35} />
 
-            <h3 className="font-semibold text-lg mt-3">
+            <h3 className="font-semibold text-lg text-gray-800 mt-3">
               Trusted Service
             </h3>
 
@@ -96,7 +96,7 @@ export default function AboutPage() {
 
             <Users className="mx-auto text-[#FF5533]" size={35} />
 
-            <h3 className="font-semibold text-lg mt-3">
+            <h3 className="font-semibold text-lg text-gray-800 mt-3">
               Customer First
             </h3>
 

@@ -173,7 +173,7 @@ export default function HeroSlider({ sliders }) {
                       </div>
                     )}
                   </div>
-                  <span className="font-medium text-sm flex-1 truncate">{category.category_name}</span>
+                  <span className="font-medium text-md flex-1 truncate">{category.category_name}</span>
                   {category.subcategories && category.subcategories.length > 0 && (
                     <ChevronRight size={14} className="flex-shrink-0" />
                   )}
@@ -216,7 +216,7 @@ export default function HeroSlider({ sliders }) {
                       <div className="w-full h-full bg-gray-200"></div>
                     )}
                   </div>
-                  <span className="text-sm font-medium">{subcat.category_name}</span>
+                  <span className="text-md font-medium">{subcat.category_name}</span>
                 </Link>
               ))}
             </div>

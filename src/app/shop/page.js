@@ -593,7 +593,7 @@ export default function ShopPage() {
             </button>
 
             {/* Search */}
-            // <div className="flex-1 relative justify-center">
+            {/* // <div className="flex-1 relative justify-center">
             //   <Search size={17} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-900 pointer-events-none" />
             //   <input
             //     type="text"
@@ -607,7 +607,7 @@ export default function ShopPage() {
             //       <X size={16} />
             //     </button>
             //   )}
-            // </div>
+            // </div> */}
 
             <div className="relative w-full max-w-md">
               {/* Search Icon */}

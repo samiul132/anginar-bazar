@@ -75,7 +75,7 @@ export default function FeaturedCategory() {
 
             {/* Right Text */}
             <div className="flex-1 min-w-0">
-              <h4 className="text-xs font-semibold text-gray-800 line-clamp-2 leading-tight">
+              <h4 className="text-xs md:text-base font-semibold text-gray-800 line-clamp-2 leading-tight">
                 {category.category_name}
               </h4>
             </div>

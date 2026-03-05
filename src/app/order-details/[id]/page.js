@@ -78,7 +78,7 @@ export default function OrderDetailsPage() {
     
     if (statusUpper === 'DELIVERED') {
       return 4;
-    } else if (statusUpper === 'SHIPPED') {
+    } else if (statusUpper === 'SHIPPING') {
       return 3;
     } else if (statusUpper === 'PROCESSING') {
       return 2;

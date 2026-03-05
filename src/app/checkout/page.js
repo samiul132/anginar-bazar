@@ -412,7 +412,7 @@ export default function CheckoutPage() {
           {/* Delivery Time Alert */}
           {deliveryTimeInfo.show && (
             <div className={`${deliveryTimeInfo.bg} border ${deliveryTimeInfo.border} rounded-lg px-4 py-3 mb-6 flex items-center gap-3`}>
-              <svg className="w-5 h-5 flex-shrink-0 text-current" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 flex-shrink-0 text-current text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <p className={`${deliveryTimeInfo.text} text-sm font-medium`}>

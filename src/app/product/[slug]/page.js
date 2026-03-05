@@ -217,14 +217,22 @@ export default function ProductDetailsPage() {
           </button>
 
           {/* Breadcrumb */}
-          <div className="flex items-center gap-1 text-sm text-gray-600 mx-4 flex-1">
+          <div className="flex items-center gap-1 text-sm text-gray-600 mx-4 flex-1 min-w-0">
             <Link href="/" className="hover:text-orange-500 transition-colors duration-200 whitespace-nowrap">
               Home
             </Link>
-            <svg className="w-3 h-3 text-gray-400 shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+
+            <svg
+              className="w-3 h-3 text-gray-400 shrink-0"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              viewBox="0 0 24 24"
+            >
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
             </svg>
-            <span className="font-semibold text-gray-800 truncate">
+
+            <span className="font-semibold text-gray-800 truncate min-w-0">
               {product?.product_name}
             </span>
           </div>
@@ -415,9 +423,9 @@ export default function ProductDetailsPage() {
           <div className="px-4 mt-12">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Related Products</h2>
-              <span className="text-sm text-gray-500">
+              {/* <span className="text-sm text-gray-500">
                 {relatedProducts.length} {relatedProducts.length === 1 ? 'product' : 'products'}
-              </span>
+              </span> */}
             </div>
             
             <div className="relative">
