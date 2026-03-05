@@ -48,7 +48,7 @@ function OrderRow({ order, index }) {
   const statusConfig = {
     pending:    { label: 'Pending',    bg: '#fff7ed', color: '#c2410c', dot: '#fb923c' },
     processing: { label: 'Processing', bg: '#eff6ff', color: '#1d4ed8', dot: '#60a5fa' },
-    shipped:    { label: 'Shipped',    bg: '#f0fdf4', color: '#15803d', dot: '#16a34a' },
+    shipping:    { label: 'Shipping',    bg: '#f0fdf4', color: '#15803d', dot: '#16a34a' },
     delivered:  { label: 'Delivered',  bg: '#f0fdf4', color: '#15803d', dot: '#16a34a' },
     cancelled:  { label: 'Cancelled',  bg: '#fef2f2', color: '#b91c1c', dot: '#f87171' },
     completed:  { label: 'Completed',  bg: '#f0fdf4', color: '#166534', dot: '#16a34a' },
