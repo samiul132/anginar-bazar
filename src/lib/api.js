@@ -26,34 +26,60 @@ export const API_ENDPOINTS = {
 };
 
 // ============================================
+// Safe localStorage wrapper
+// Handles both SSR (server-side) and SecurityError (iframe/blocked storage)
+// ============================================
+const safeStorage = {
+  getItem: (key) => {
+    try {
+      if (typeof window === 'undefined') return null;
+      return localStorage.getItem(key);
+    } catch (e) {
+      return null;
+    }
+  },
+  setItem: (key, value) => {
+    try {
+      if (typeof window === 'undefined') return;
+      localStorage.setItem(key, value);
+    } catch (e) {
+      // silently fail
+    }
+  },
+  removeItem: (key) => {
+    try {
+      if (typeof window === 'undefined') return;
+      localStorage.removeItem(key);
+    } catch (e) {
+      // silently fail
+    }
+  },
+};
+
+// ============================================
 // Storage Helper Functions (for Next.js)
 // ============================================
 export const storage = {
-  getAuthToken: () => {
-    if (typeof window === 'undefined') return null;
-    return localStorage.getItem('auth_token');
-  },
+  getAuthToken: () => safeStorage.getItem('auth_token'),
 
-  setAuthToken: (token) => {
-    if (typeof window === 'undefined') return;
-    localStorage.setItem('auth_token', token);
-  },
+  setAuthToken: (token) => safeStorage.setItem('auth_token', token),
 
   getCustomerData: () => {
-    if (typeof window === 'undefined') return null;
-    const data = localStorage.getItem('customer_data');
-    return data ? JSON.parse(data) : null;
+    const data = safeStorage.getItem('customer_data');
+    try {
+      return data ? JSON.parse(data) : null;
+    } catch (e) {
+      return null;
+    }
   },
 
   setCustomerData: (customerData) => {
-    if (typeof window === 'undefined') return;
-    localStorage.setItem('customer_data', JSON.stringify(customerData));
+    safeStorage.setItem('customer_data', JSON.stringify(customerData));
   },
 
   clearAuthData: () => {
-    if (typeof window === 'undefined') return;
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('customer_data');
+    safeStorage.removeItem('auth_token');
+    safeStorage.removeItem('customer_data');
   },
 
   isAuthenticated: () => {

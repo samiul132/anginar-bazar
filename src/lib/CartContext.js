@@ -1,8 +1,27 @@
 'use client';
-
 import { createContext, useContext, useState, useEffect, useRef } from 'react';
 
 export const CartContext = createContext(undefined);
+
+// Safe localStorage helper
+const safeStorage = {
+  getItem: (key) => {
+    try {
+      if (typeof window === 'undefined') return null;
+      return window.localStorage?.getItem(key) ?? null;
+    } catch {
+      return null;
+    }
+  },
+  setItem: (key, value) => {
+    try {
+      if (typeof window === 'undefined') return;
+      window.localStorage?.setItem(key, value);
+    } catch {
+      // silent fail
+    }
+  },
+};
 
 export function CartProvider({ children }) {
   const [cartItems, setCartItems] = useState([]);
@@ -15,17 +34,13 @@ export function CartProvider({ children }) {
 
   useEffect(() => {
     if (loaded) {
-      // Debounce save - wait 500ms after last change
       if (saveTimeoutRef.current) {
         clearTimeout(saveTimeoutRef.current);
       }
-
       saveTimeoutRef.current = setTimeout(() => {
         saveCart();
       }, 500);
     }
-
-    // Cleanup
     return () => {
       if (saveTimeoutRef.current) {
         clearTimeout(saveTimeoutRef.current);
@@ -33,9 +48,9 @@ export function CartProvider({ children }) {
     };
   }, [cartItems, loaded]);
 
-  const loadCart = async () => {
+  const loadCart = () => {
     try {
-      const cartData = localStorage.getItem('cart');
+      const cartData = safeStorage.getItem('cart');
       if (cartData) {
         setCartItems(JSON.parse(cartData));
       }
@@ -46,9 +61,9 @@ export function CartProvider({ children }) {
     }
   };
 
-  const saveCart = async () => {
+  const saveCart = () => {
     try {
-      localStorage.setItem('cart', JSON.stringify(cartItems));
+      safeStorage.setItem('cart', JSON.stringify(cartItems));
     } catch (error) {
       console.error('Error saving cart:', error);
     }
@@ -93,7 +108,9 @@ export function CartProvider({ children }) {
   };
 
   const getCartTotal = () => {
-    return cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    return cartItems.reduce(
+      (sum, item) => sum + item.price * item.quantity, 0
+    );
   };
 
   const getCartCount = () => {
