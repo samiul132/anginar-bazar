@@ -13,9 +13,6 @@ import Banner from '@/components/Banner';
 
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Grid } from 'swiper/modules';
-import 'swiper/css';
-import 'swiper/css/navigation';
-import 'swiper/css/grid';
 
 export default function HomePage() {
   const [popularItems, setPopularItems] = useState([]);

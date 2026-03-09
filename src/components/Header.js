@@ -208,6 +208,7 @@ export default function Header({ cartCount = 0 }) {
                   width={120}
                   height={40}
                   loading="eager"
+                  style={{ height: 'auto' }}
                   className="w-auto h-10 hover:opacity-80 transition-opacity"
                 />
               </Link>
@@ -358,13 +359,13 @@ export default function Header({ cartCount = 0 }) {
               </a>
 
               {/* Download App - Mobile */}
-              <Link href="/download-app" className="md:hidden shrink-0 cursor-pointer">
+              <Link href="/download-app" className="md:hidden shrink cursor-pointer max-w-[80px]">
                 <Image
                   src="/assets/images/google-play-app-store-png.png"
-                  width={80}
-                  height={30}
                   alt="Download App"
-                  className="w-auto h-8 hover:opacity-80 transition-opacity"
+                  width={120}
+                  height={40}
+                  className="w-full h-auto hover:opacity-80 transition-opacity"
                 />
               </Link>
             </div>

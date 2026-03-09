@@ -105,14 +105,14 @@ export async function apiRequest(endpoint, options = {}) {
 // thumbnail,full
 export const getImageUrl = (imagePath, type = 'full') => {
   if (!imagePath || typeof imagePath !== 'string' || imagePath.length < 5) {
-    return 'https://via.placeholder.com/200';
+    return '/placeholder.png';
   }
   if (imagePath.startsWith('http')) return imagePath;
   return `https://app.anginarbazar.com/uploads/images/${type}/${imagePath}`;
 };
 
 export const getSliderImage = (image) => {
-  if (!image) return 'https://via.placeholder.com/800x400';
+  if (!image) return '/placeholder.png';
   if (image.startsWith('http')) return image;
   return `https://app.anginarbazar.com/uploads/images/full/${image}`;
 };
