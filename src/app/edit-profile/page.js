@@ -231,7 +231,7 @@ export default function EditProfilePage() {
         <div className="bg-white shadow-sm sticky top-0 z-40">
           <div className="max-w-7xl mx-auto px-4 py-3">
             <div className="flex items-center gap-4">
-              <Link href="/account" className="p-2 hover:bg-gray-100 rounded-full transition cursor-pointer">
+              <Link href="/profile" className="p-2 hover:bg-gray-100 rounded-full transition cursor-pointer">
                 <ChevronLeft size={24} />
               </Link>
               <h1 className="text-xl md:text-2xl font-bold text-gray-900">Manage Addresses</h1>

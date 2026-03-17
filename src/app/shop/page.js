@@ -635,7 +635,7 @@ export default function ShopPage() {
             </div>
 
             {/* Sort */}
-            <div className="relative shrink-0">
+            {/* <div className="relative shrink-0">
               {showSortDropdown && (
                 <div className="absolute right-0 top-20 mt-1 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-50">
                   {SORT_OPTIONS.map((opt) => (
@@ -649,7 +649,7 @@ export default function ShopPage() {
                   ))}
                 </div>
               )}
-            </div>
+            </div> */}
           </div>
         </div>
       </div>
@@ -700,15 +700,40 @@ export default function ShopPage() {
                 </>
               )}
             </p>
+
+            <div className="relative shrink-0">
+              <button
+                onClick={() => setShowSortDropdown((v) => !v)}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-gray-200 text-sm font-medium hover:bg-gray-50 transition-colors cursor-pointer whitespace-nowrap"
+              >
+                <span className="hidden sm:inline">{SORT_OPTIONS.find((o) => o.value === sortBy)?.label}</span>
+                <span className="sm:hidden text-gray-900">Sort</span>
+                <ChevronDown className='text-gray-800' size={14} />
+              </button>
+
+              {showSortDropdown && (
+                <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-30">
+                  {SORT_OPTIONS.map((opt) => (
+                    <button
+                      key={opt.value}
+                      onClick={() => { setSortBy(opt.value); setShowSortDropdown(false); }}
+                      className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-50 transition-colors cursor-pointer ${sortBy === opt.value ? 'text-[#FF5533] font-semibold' : 'text-gray-700'}`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
             
-            <button
+            {/* <button
               onClick={() => setShowSortDropdown((v) => !v)}
               className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-gray-200 text-sm font-medium hover:bg-gray-50 transition-colors cursor-pointer whitespace-nowrap"
             >
               <span className="hidden sm:inline">{SORT_OPTIONS.find((o) => o.value === sortBy)?.label}</span>
               <span className="sm:hidden text-gray-900">Sort</span>
               <ChevronDown className='text-gray-800' size={14} />
-            </button>
+            </button> */}
 
             {/* Active filter chips */}
             {(selectedCategories.length > 0 || selectedBrands.length > 0) && (

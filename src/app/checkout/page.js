@@ -335,7 +335,12 @@ export default function CheckoutPage() {
         };
       }
 
-      const response = await api.orders.place(orderPayload);
+      const orderPromise = api.orders.place(orderPayload);
+
+      const [response] = await Promise.all([
+          orderPromise,
+          new Promise(resolve => setTimeout(resolve, 800))
+      ]);
 
       if (response.success) {
         // Handle guest user auto-login

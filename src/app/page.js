@@ -10,6 +10,7 @@ import ProductCard from '@/components/ProductCard';
 import Message from '@/components/Message'; 
 import FeaturedCategory from '@/components/FeaturedCategory'; 
 import Banner from '@/components/Banner';
+import AppDownloadModal from '@/components/AppDownloadModal';
 
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Grid } from 'swiper/modules';
@@ -57,6 +58,7 @@ export default function HomePage() {
 
   return (
     <div className="bg-gray-50 min-h-screen flex flex-col">
+      <AppDownloadModal />
       <main className="flex-1 max-w-7xl w-full mx-auto pb-4 md:pb-8">
         <div>
           {loading && (

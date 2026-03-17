@@ -16,13 +16,11 @@ function getAuthSnapshot() {
   const customerData = storage.getCustomerData();
   const user = token && customerData ? customerData : null;
 
-  // Return null as-is (primitive, always stable)
   if (user === null) {
     cachedSnapshot = null;
     return null;
   }
 
-  // Only create new object if data actually changed
   const newJson = JSON.stringify(user);
   if (!cachedSnapshot || JSON.stringify(cachedSnapshot) !== newJson) {
     cachedSnapshot = user;
@@ -32,7 +30,7 @@ function getAuthSnapshot() {
 }
 
 function getServerSnapshot() {
-  return null; 
+  return null;
 }
 
 function subscribeToAuth(callback) {
@@ -146,7 +144,6 @@ export default function Footer() {
               </a>
 
               {user ? (
-
                 <ul className="space-y-3">
                   {accountLinks.map((link, idx) => (
                     <li key={idx}>
@@ -162,16 +159,13 @@ export default function Footer() {
                     </li>
                   ))}
                 </ul>
-
               ) : (
-
                 <button
                   onClick={() => setShowAuthModal(true)}
                   className="bg-[#FF5533] text-white px-2 py-1 rounded-lg text-sm font-semibold hover:bg-[#e64e27] transition cursor-pointer"
                 >
                   Sign in / Sign Up
                 </button>
-
               )}
             </div>
 
@@ -210,17 +204,32 @@ export default function Footer() {
                 </li>
               </ul>
 
-              <div className="mt-4">
-                <Link href="/download-app" className="block">
+              {/* App Download Badges */}
+              <div className="mt-4 flex gap-2">
+                <a
+                  href="https://play.google.com/store/apps/details?id=com.designcodeit.anginarbazar"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   <Image
                     src="/assets/images/google-play-app-store-png.png"
-                    alt="Download App"
-                    width={140}
+                    alt="Get it on Google Play"
+                    width={130}
                     height={42}
                     className="hover:opacity-80 transition-opacity cursor-pointer"
                   />
-                </Link>
+                </a>
+                {/* <a href="/anginar-bazar.apk" download>
+                  <Image
+                    src="/assets/images/app-store-download-on-the-app-store.png"
+                    alt="Download on App Store"
+                    width={130}
+                    height={42}
+                    className="hover:opacity-80 transition-opacity cursor-pointer"
+                  />
+                </a> */}
               </div>
+
             </div>
 
           </div>
