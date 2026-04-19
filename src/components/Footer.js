@@ -239,13 +239,29 @@ export default function Footer() {
       {/* Bottom Bar */}
       <div className="bg-gray-900 text-gray-400 py-4">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-center items-center gap-4 text-sm">
-            <p className="text-center md:text-left">
+          <div className="flex flex-col md:flex-row justify-center items-center gap-2 text-sm text-center">
+            
+            <p>
               &copy; {currentYear}{' '}
               <span className="text-white font-medium">
-                <Link href="/" className="hover:text-white transition-colors">Anginar Bazar</Link>
+                <Link href="/" className="hover:text-white transition-colors">
+                  Anginar Bazar
+                </Link>
               </span>. All rights reserved.
             </p>
+
+            <p className="text-gray-500">
+              Design & Developed by{' '}
+              <a
+                href="https://www.designcodeit.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-[#FF4C13] hover:text-[#FF4C13]/80 transition"
+              >
+                DesignCode IT
+              </a>
+            </p>
+
           </div>
         </div>
       </div>

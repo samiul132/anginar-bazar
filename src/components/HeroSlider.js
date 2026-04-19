@@ -157,7 +157,7 @@ export default function HeroSlider({ sliders }) {
                       : 'text-gray-700 hover:bg-[#FFF5F3] hover:text-[#FF5533]'
                   }`}
                 >
-                  <div className="w-6 h-6 flex-shrink-0 rounded overflow-hidden bg-gray-100">
+                  <div className="w-6 h-6 flex-shrink-0 overflow-hidden bg-gray-100">
                     {category.image && category.image !== 'null' ? (
                       <Image
                         src={`https://app.anginarbazar.com/uploads/images/thumbnail/${category.image}`}
@@ -188,11 +188,11 @@ export default function HeroSlider({ sliders }) {
           categories[selectedCategory]?.subcategories &&
           categories[selectedCategory].subcategories.length > 0 && (
           <div
-            className={`absolute left-full top-0 w-60 ${sliderHeight} bg-white border border-gray-200 shadow-lg z-40 flex flex-col rounded-sm`}
+            className={`absolute left-full top-0 w-60 ${sliderHeight} bg-white border border-gray-200 shadow-lg z-40 flex flex-col`}
             onMouseEnter={() => setSelectedCategory(selectedCategory)}
             onMouseLeave={() => setSelectedCategory(null)}
           >
-            <div className="bg-[#FF5533] text-white px-3 py-2 font-semibold text-sm flex-shrink-0 rounded-sm">
+            <div className="bg-[#FF5533] text-white px-3 py-2 font-semibold text-sm flex-shrink-0">
               {categories[selectedCategory].category_name}
             </div>
             <div className="overflow-y-auto hide-scrollbar flex-1">

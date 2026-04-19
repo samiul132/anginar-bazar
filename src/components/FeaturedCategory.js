@@ -7,15 +7,15 @@ import Link from 'next/link';
 import { api, getImageUrl } from '@/lib/api';
 
 export default function FeaturedCategory() {
-  const [parentCategories, setparentCategories] = useState([]);
+  const [featuredCategories, setFeaturedCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetchparentCategories();
+    fetchFeaturedCategories();
   }, []);
 
-  const fetchparentCategories = async () => {
+  const fetchFeaturedCategories = async () => {
     setLoading(true);
     setError(null);
     
@@ -23,8 +23,8 @@ export default function FeaturedCategory() {
       const homeData = await api.home.getData();
       
       if (homeData.success && homeData.data) {
-        const parentCats = homeData.data.parentCategories || [];
-        setparentCategories(parentCats);
+        const featured = homeData.data.featuredCategories || [];
+        setFeaturedCategories(featured);
       }
     } catch (err) {
       setError('Failed to load categories');
@@ -42,7 +42,7 @@ export default function FeaturedCategory() {
     );
   }
 
-  if (error || parentCategories.length === 0) {
+  if (error || featuredCategories.length === 0) {
     return null;
   }
 
@@ -54,7 +54,7 @@ export default function FeaturedCategory() {
       </h3>
       {/* Categories Grid - Horizontal Layout */}
       <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-        {parentCategories.map((category) => (
+        {featuredCategories.map((category) => (
           <Link
             key={category.id}
             href={`/category/${category.slug}`}
