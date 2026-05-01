@@ -5,6 +5,7 @@ import { Search, X, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { api, getImageUrl } from '@/lib/api';
+import { useCart } from '@/lib/CartContext';
 
 export default function SearchBar({ onMobile = false }) {
   const [searchQuery, setSearchQuery] = useState('');
@@ -12,6 +13,7 @@ export default function SearchBar({ onMobile = false }) {
   const [isSearching, setIsSearching] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [error, setError] = useState(null);
+  const { addToCart, getItemQuantity, updateQuantity } = useCart();
   
   const searchRef = useRef(null);
   const debounceTimerRef = useRef(null);
@@ -141,53 +143,90 @@ export default function SearchBar({ onMobile = false }) {
               <div className="px-4 py-2 text-sm text-gray-500 border-b border-gray-100">
                 Found {searchResults.length} product{searchResults.length !== 1 ? 's' : ''}
               </div>
-              {searchResults.map((product) => (
-                <Link
+              {searchResults.map((product) => {
+              const quantity = getItemQuantity(product.id);
+
+              const salePrice = parseFloat(product.sale_price || 0);
+              const promoPrice = parseFloat(product.promotional_price || 0);
+              const hasDiscount = promoPrice > 0 && promoPrice < salePrice;
+              const finalPrice = hasDiscount ? promoPrice : salePrice;
+
+              const handleAdd = () => {
+                addToCart({
+                  product_id: product.id,
+                  name: product.product_name,
+                  price: finalPrice,
+                  image: product.image,
+                  slug: product.slug || ''
+                }, 1);
+              };
+
+              return (
+                <div
                   key={product.id}
-                  href={`/product/${product.slug}`}
-                  onClick={handleResultClick}
-                  className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0 cursor-pointer"
+                  className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-gray-50 border-b border-gray-100"
                 >
-                  {/* Product Image */}
-                  <div className="w-12 h-12 flex-shrink-0 bg-gray-100 rounded overflow-hidden">
-                    <Image
-                      src={getImageUrl(product.image, 'thumbnail')}
-                      alt={product.product_name}
-                      width={48}
-                      height={48}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-
-                  {/* Product Info */}
-                  <div className="flex-1 min-w-0">
-                    <h4 className="text-sm font-medium text-gray-800 truncate">
-                      {product.product_name}
-                    </h4>
-                    <div className="flex items-center gap-2 mt-1">
-                      {(() => {
-                        const salePrice = parseFloat(product.sale_price || 0);
-                        const promoPrice = parseFloat(product.promotional_price || 0);
-                        const hasDiscount = promoPrice > 0 && promoPrice < salePrice;
-                        const displayPrice = hasDiscount ? promoPrice : salePrice;
-
-                        return (
-                          <>
-                            <span className="text-sm font-semibold text-[#FF5533]">
-                              ৳{displayPrice.toFixed(0)}
-                            </span>
-                            {hasDiscount && (
-                              <span className="text-xs text-gray-400 line-through">
-                                ৳{salePrice.toFixed(0)}
-                              </span>
-                            )}
-                          </>
-                        );
-                      })()}
+                  {/* LEFT SIDE - PRODUCT INFO */}
+                  <Link
+                    href={`/product/${product.slug}`}
+                    onClick={handleResultClick}
+                    className="flex items-center gap-3 flex-1"
+                  >
+                    <div className="w-12 h-12 bg-gray-100 rounded overflow-hidden">
+                      <Image
+                        src={getImageUrl(product.image, 'thumbnail')}
+                        alt={product.product_name}
+                        width={48}
+                        height={48}
+                        className="w-full h-full object-cover"
+                      />
                     </div>
+
+                    <div className="min-w-0">
+                      <h4 className="text-sm font-medium text-gray-800 truncate">
+                        {product.product_name}
+                      </h4>
+                      <div className="text-sm font-semibold text-[#FF5533]">
+                        ৳{finalPrice.toFixed(0)}
+                      </div>
+                    </div>
+                  </Link>
+
+                  {/* RIGHT SIDE - ADD TO CART CONTROLS */}
+                  <div className="flex items-center h-7">
+                    {quantity === 0 ? (
+                      <button
+                        onClick={handleAdd}
+                        className="bg-[#FF5533] text-white text-xs px-3 h-7 rounded-full hover:bg-[#e64e27] transition flex items-center justify-center whitespace-nowrap"
+                      >
+                        + Add
+                      </button>
+                    ) : (
+                      <div className="flex items-center bg-[#FF5533] text-white rounded-full overflow-hidden text-xs h-7">
+                        
+                        <button
+                          onClick={() => updateQuantity(product.id, quantity - 1)}
+                          className="w-7 h-7 flex items-center justify-center hover:bg-[#e64e27] transition"
+                        >
+                          -
+                        </button>
+
+                        <span className="w-7 h-7 flex items-center justify-center border-x border-white">
+                          {quantity}
+                        </span>
+
+                        <button
+                          onClick={() => updateQuantity(product.id, quantity + 1)}
+                          className="w-7 h-7 flex items-center justify-center hover:bg-[#e64e27] transition"
+                        >
+                          +
+                        </button>
+                      </div>
+                    )}
                   </div>
-                </Link>
-              ))}
+                </div>
+              );
+            })}
             </div>
           ) : searchQuery.length >= 2 && !isSearching ? (
             <div className="p-8 text-center">
