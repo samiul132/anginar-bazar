@@ -142,6 +142,34 @@ export default function PrivacyPolicyPage() {
               </li>
             </ul>
 
+            <h3 className="font-bold text-gray-900 mt-6 mb-3">Location Information:</h3>
+            <p className="text-sm text-gray-700 mb-3">
+              We may request foreground location permission to improve your experience on Anginar Bazar.
+            </p>
+
+            <ul className="space-y-2 ml-6">
+              <li className="flex items-start gap-2">
+                <span className="text-[#FF5533] mt-1">•</span>
+                <span>
+                  <strong>Purpose:</strong> To detect your current city or address and show nearby or relevant products, offers, and delivery options.
+                </span>
+              </li>
+
+              <li className="flex items-start gap-2">
+                <span className="text-[#FF5533] mt-1">•</span>
+                <span>
+                  <strong>Usage:</strong> Location is used only while the app is in use (foreground) and is not collected in the background.
+                </span>
+              </li>
+
+              <li className="flex items-start gap-2">
+                <span className="text-[#FF5533] mt-1">•</span>
+                <span>
+                  <strong>Control:</strong> You can enable or disable location access anytime from your device settings.
+                </span>
+              </li>
+            </ul>
+
             <h3 className="font-bold text-gray-900 mt-6 mb-3">How We Use Your Data:</h3>
             <ul className="space-y-2 ml-6">
               <li className="flex items-start gap-2">
