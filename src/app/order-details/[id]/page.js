@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import {
   ChevronLeft,
@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { api, getImageUrl } from '@/lib/api';
+import { api, getImageUrl, handleApiError } from '@/lib/api';
 import { useInvoiceDownload } from '@/components/Invoice';
 
 export default function OrderDetailsPage() {
@@ -31,11 +31,28 @@ export default function OrderDetailsPage() {
   const [refreshing, setRefreshing] = useState(false);
   const { InvoiceTemplate, downloadInvoice } = useInvoiceDownload(order);
 
+  const [cancelling, setCancelling] = useState(false);
+  const [cancelError, setCancelError] = useState('');
+
+  const [showCancelModal, setShowCancelModal] = useState(false);
+
+  const [paying, setPaying] = useState(false);
+  const [verifying, setVerifying] = useState(false);
+  const [payMessage, setPayMessage] = useState(null); 
+  const pollRef = useRef(null);
+  const popupRef = useRef(null);
+
   useEffect(() => {
     if (orderId) {
       fetchOrderDetails();
     }
   }, [orderId]);
+
+  useEffect(() => {
+    return () => {
+      if (pollRef.current) clearInterval(pollRef.current);
+    };
+  }, []);
 
   const fetchOrderDetails = async () => {
     try {
@@ -54,6 +71,29 @@ export default function OrderDetailsPage() {
       setRefreshing(false);
     }
   };
+
+  useEffect(() => {
+  if (!verifying || !order) return;
+  const recheck = async () => {
+    try {
+      const resp = await api.orders.getDetails(order.id, false);
+      if (resp.success && resp.data) {
+        const ps = resp.data.payment_status?.toUpperCase();
+        if (ps === 'PAID' || ps === 'PARTIAL') {
+          if (pollRef.current) clearInterval(pollRef.current);
+          pollRef.current = null;
+          setVerifying(false);
+          try { if (popupRef.current && !popupRef.current.closed) popupRef.current.close(); } catch (_) {}
+          setOrder(resp.data);
+          setPayMessage({ type: 'success', text: 'পেমেন্ট সফলভাবে সম্পন্ন হয়েছে ✅' });
+        }
+      }
+    } catch (_) {}
+  };
+  window.addEventListener('focus', recheck);
+  return () => window.removeEventListener('focus', recheck);
+}, [verifying, order]);
+
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -114,6 +154,24 @@ export default function OrderDetailsPage() {
 
   const deliveryTimeInfo = getDeliveryTimeMessage();
 
+  const handleCancelOrder = async () => {
+    setCancelling(true);
+    setCancelError('');
+    try {
+      const response = await api.orders.cancel(orderId);
+      if (response.success) {
+        setShowCancelModal(false);
+        await fetchOrderDetails();
+      } else {
+        setCancelError(response.message || 'Failed to cancel order');
+      }
+    } catch (err) {
+      setCancelError('Something went wrong');
+    } finally {
+      setCancelling(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -166,7 +224,122 @@ export default function OrderDetailsPage() {
     );
   }
 
+  const finishPolling = (success, freshOrder) => {
+    if (pollRef.current) clearInterval(pollRef.current);
+    pollRef.current = null;
+    setVerifying(false);
+    try {
+      if (popupRef.current && !popupRef.current.closed) popupRef.current.close();
+    } catch (_) {}
+
+    if (success) {
+      if (freshOrder) setOrder(freshOrder);
+      setPayMessage({ type: 'success', text: 'পেমেন্ট সফলভাবে সম্পন্ন হয়েছে ✅' });
+    } else {
+      // সর্বশেষ অবস্থা টেনে আনি — backend যা বলবে তাই সত্য
+      fetchOrderDetails();
+    }
+  };
+
+  const startPolling = () => {
+    const startPaid = Number(order?.paid_amount || 0);
+    let elapsed = 0;
+    setVerifying(true);
+
+    pollRef.current = setInterval(async () => {
+      elapsed += 3;
+      const popupClosed = popupRef.current && popupRef.current.closed;
+
+      try {
+        const resp = await api.orders.getDetails(order.id, false);
+        if (resp.success && resp.data) {
+          const o = resp.data;
+          const ps = o.payment_status?.toUpperCase();
+          const paidNow = Number(o.paid_amount || 0);
+          if (ps === 'PAID' || ps === 'PARTIAL' || paidNow > startPaid) {
+            finishPolling(true, o);
+            return;
+          }
+        }
+      } catch (_) {}
+
+      if (popupClosed) { finishPolling(false); return; }   // user popup বন্ধ করেছে
+      if (elapsed >= 180) { finishPolling(false); }          // ৩ মিনিট timeout
+    }, 3000);
+  };
+
+  const handlePayNow = async () => {
+    setPayMessage(null);
+
+    // popup-blocker এড়াতে click gesture-এর ভেতরেই window খুলে ফেলি
+    const w = 480, h = 720;
+    const left = window.screenX + (window.outerWidth - w) / 2;
+    const top = window.screenY + (window.outerHeight - h) / 2;
+    const popup = window.open(
+      '', 'bkash_payment',
+      `width=${w},height=${h},left=${left},top=${top}`
+    );
+    if (popup) {
+      try {
+        popup.document.write(
+          '<p style="font-family:sans-serif;text-align:center;margin-top:48px;color:#555">bKash লোড হচ্ছে...</p>'
+        );
+      } catch (_) {}
+    }
+
+    setPaying(true);
+    try {
+      const res = await api.orders.createBkashPayment(order.id);
+      if (res.success && res.bkashURL) {
+        if (popup) {
+          popup.location.href = res.bkashURL;
+          popupRef.current = popup;
+          startPolling();
+        } else {
+          // popup blocked → full redirect (degraded fallback)
+          window.location.href = res.bkashURL;
+        }
+      } else {
+        if (popup) popup.close();
+        setPayMessage({ type: 'error', text: res.message || 'পেমেন্ট শুরু করা যায়নি' });
+      }
+    } catch (e) {
+      if (popup) popup.close();
+      setPayMessage({ type: 'error', text: handleApiError(e) });
+    } finally {
+      setPaying(false);
+    }
+  };
+
+  const checkNow = async () => {
+  try {
+    const resp = await api.orders.getDetails(order.id, false);
+    if (resp.success && resp.data) {
+      const ps = resp.data.payment_status?.toUpperCase();
+      if (ps === 'PAID' || ps === 'PARTIAL') {
+        finishPolling(true, resp.data);
+        return;
+      }
+    }
+    setPayMessage({ type: 'error', text: 'এখনো পেমেন্ট নিশ্চিত হয়নি। সম্পন্ন করে আবার চেক করুন।' });
+  } catch (_) {
+    setPayMessage({ type: 'error', text: 'চেক করা যায়নি, আবার চেষ্টা করুন।' });
+  }
+};
+
+const cancelVerify = () => {
+  if (pollRef.current) clearInterval(pollRef.current);
+  pollRef.current = null;
+  setVerifying(false);
+  try { if (popupRef.current && !popupRef.current.closed) popupRef.current.close(); } catch (_) {}
+  fetchOrderDetails();
+};
+
   const statusStep = getStatusSteps(order.order_status);
+  // const canCancel = ['PENDING', 'PROCESSING'].includes(
+  //   order.order_status?.toUpperCase()
+  // );
+  const canCancel = order.order_status?.toUpperCase() === 'PENDING';
   const statusSteps = [
     { label: 'Order Placed', icon: Package },
     { label: 'Processing', icon: FileText },
@@ -174,11 +347,81 @@ export default function OrderDetailsPage() {
     { label: 'Completed', icon: CheckCircle2 },
   ];
 
+  const canPay =
+    ['SHIPPING', 'DELIVERED'].includes(order.order_status?.toUpperCase()) &&
+    order.payment_status?.toUpperCase() !== 'PAID' &&
+    Number(order.due_amount ?? order.payable_amount) > 0;
+  const payAmount = Number(order.due_amount) > 0 ? order.due_amount : order.payable_amount;
+
   return (
     <div className="min-h-screen bg-gray-50 pb-20 md:pb-8">
 
       {/* Invoice Modal */}
       <InvoiceTemplate />
+
+      {verifying && (
+  <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 px-4">
+    <div className="bg-white rounded-2xl p-6 w-full max-w-xs text-center space-y-4">
+      <Loader2 className="w-10 h-10 text-[#E2136E] animate-spin mx-auto" />
+      <h3 className="font-bold text-gray-900">পেমেন্ট যাচাই করা হচ্ছে...</h3>
+      <p className="text-gray-500 text-sm">
+        bKash উইন্ডোতে পেমেন্ট সম্পন্ন করুন। সম্পন্ন হলে স্বয়ংক্রিয়ভাবে আপডেট হবে।
+      </p>
+      <div className="flex flex-col gap-2 pt-1">
+        <button
+          onClick={checkNow}
+          className="w-full py-2.5 rounded-xl font-bold text-white"
+          style={{ backgroundColor: '#E2136E' }}
+        >
+          পেমেন্ট করেছি — চেক করুন
+        </button>
+        <button
+          onClick={cancelVerify}
+          className="w-full py-2.5 rounded-xl font-bold border-2 border-gray-200 text-gray-600 hover:bg-gray-50"
+        >
+          বন্ধ করুন
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+      
+      {/* Cancel Confirmation Modal */}
+      {showCancelModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+          <div className="absolute inset-0 bg-black/50" onClick={() => setShowCancelModal(false)} />
+          <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 space-y-4">
+            <div className="flex items-center justify-center w-14 h-14 bg-red-100 rounded-full mx-auto">
+              <AlertCircle className="w-7 h-7 text-red-500" />
+            </div>
+            <div className="text-center">
+              <h3 className="text-lg font-bold text-gray-900">Cancel Order?</h3>
+              <p className="text-gray-500 text-sm mt-1">
+                Are you sure you want to cancel Order #{order.id}? This action cannot be undone.
+              </p>
+            </div>
+            {cancelError && (
+              <p className="text-red-500 text-sm text-center">{cancelError}</p>
+            )}
+            <div className="flex gap-3">
+              <button
+                onClick={() => { setShowCancelModal(false); setCancelError(''); }}
+                disabled={cancelling}
+                className="flex-1 py-3 rounded-xl font-bold border-2 border-gray-200 text-gray-600 hover:bg-gray-50 transition disabled:opacity-50"
+              >
+                Keep Order
+              </button>
+              <button
+                onClick={handleCancelOrder}
+                disabled={cancelling}
+                className="flex-1 py-3 rounded-xl font-bold bg-red-500 text-white hover:bg-red-600 transition flex items-center justify-center gap-2 disabled:opacity-50"
+              >
+                {cancelling ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Yes, Cancel'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Header */}
       <div className="bg-white shadow-sm sticky top-0 z-40">
@@ -203,6 +446,16 @@ export default function OrderDetailsPage() {
 
       {/* Main Content */}
       <div className="max-w-4xl mx-auto px-4 py-6 space-y-4">
+
+      {payMessage && (
+        <div className={`rounded-lg px-4 py-3 text-sm font-medium border ${
+          payMessage.type === 'success'
+            ? 'bg-green-50 border-green-200 text-green-800'
+            : 'bg-red-50 border-red-200 text-red-800'
+        }`}>
+          {payMessage.text}
+        </div>
+      )}
 
         {/* Delivery Time Alert */}
         {deliveryTimeInfo.show && (
@@ -379,6 +632,30 @@ export default function OrderDetailsPage() {
           </div>
         )}
 
+
+        {canPay && (
+          <button
+            onClick={handlePayNow}
+            disabled={paying || verifying}
+            className="w-full py-3.5 px-6 rounded-lg font-bold text-white transition flex items-center justify-center gap-2 disabled:opacity-60"
+            style={{ backgroundColor: '#00A300' }}
+          >
+            {paying ? (
+              <Loader2 className="w-5 h-5 animate-spin" />
+            ) : (
+              <>
+                <Image
+                  src="/assets/images/bkash_logo.png"
+                  alt="bKash"
+                  width={22}
+                  height={22}
+                  className="object-contain"
+                />
+                বিকাশে পেমেন্ট করুন · ৳{formatPrice(payAmount)}
+              </>
+            )}
+          </button>
+        )}
         {/* Action Buttons */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
           <Link
@@ -407,6 +684,25 @@ export default function OrderDetailsPage() {
               </button>
             );
           })()}
+          {canCancel && (
+          <div className="col-span-1 sm:col-span-2 space-y-2">
+            {cancelError && (
+              <p className="text-red-500 text-sm text-center">{cancelError}</p>
+            )}
+            <button
+              onClick={() => setShowCancelModal(true)}
+              disabled={cancelling}
+              className="w-full py-3 px-6 rounded-lg font-bold border-2 border-red-500 text-red-500 hover:bg-red-50 transition flex items-center justify-center gap-2 disabled:opacity-50"
+            >
+              {cancelling ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                <AlertCircle className="w-5 h-5" />
+              )}
+              Cancel Order
+            </button>
+          </div>
+        )}
         </div>
       </div>
     </div>

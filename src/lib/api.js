@@ -374,6 +374,19 @@ export const orders = {
       message: response.message,
     };
   },
+  
+  cancel: async (orderId) => {
+    return apiRequest(`/orders/${orderId}/cancel`, {
+      method: 'POST',
+    });
+  },
+
+  createBkashPayment: async (orderId) => {
+    return apiRequest('/bkash/create-payment', {
+      method: 'POST',
+      body: JSON.stringify({ order_id: orderId }),
+    });
+  },
 };
 
 // ============================================

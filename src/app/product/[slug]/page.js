@@ -277,17 +277,45 @@ export default function ProductDetailsPage() {
                   Zoomed 2x
                 </div>
               )}
+              {/* Prev/Next Arrow Buttons */}
+              {productImages.length > 1 && (
+                <>
+                  <button
+                    onClick={() => setSelectedImage((prev) => (prev - 1 + productImages.length) % productImages.length)}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 z-20 bg-white/80 hover:bg-white border border-gray-200 rounded-full p-1.5 shadow-md transition-all cursor-pointer"
+                  >
+                    <ChevronLeft size={20} className="text-gray-700" />
+                  </button>
+                  <button
+                    onClick={() => setSelectedImage((prev) => (prev + 1) % productImages.length)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 z-20 bg-white/80 hover:bg-white border border-gray-200 rounded-full p-1.5 shadow-md transition-all cursor-pointer"
+                  >
+                    <ChevronRight size={20} className="text-gray-700" />
+                  </button>
+                </>
+              )}
             </div>
 
             {productImages.length > 1 && (
-              <div className="flex gap-3 overflow-x-auto p-2 scrollbar-hide">
+            <div className="relative">
+              <button
+                onClick={() => {
+                  const el = document.getElementById('thumbnail-scroll');
+                  el.scrollBy({ left: -100, behavior: 'smooth' });
+                }}
+                className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white hover:bg-gray-50 border border-gray-200 rounded-full p-1 shadow-md transition-all cursor-pointer"
+              >
+                <ChevronLeft size={16} className="text-gray-700" />
+              </button>
+
+              <div id="thumbnail-scroll" className="flex gap-3 overflow-x-auto p-2 scrollbar-hide mx-7">
                 {productImages.map((img, i) => (
                   <button
                     key={i}
                     onClick={() => setSelectedImage(i)}
-                    className={`flex-shrink-0 w-20 h-20 rounded-xl bg-white border-2 transition-all cursor-pointer overflow-hidden ${
-                      i === selectedImage 
-                        ? 'border-[#FF5533] shadow-lg scale-105' 
+                    className={`flex-shrink-0 w-20 h-20 rounded-xl bg-white border transition-all cursor-pointer overflow-hidden ${
+                      i === selectedImage
+                        ? 'border-[#FF5533] shadow-lg scale-105'
                         : 'border-gray-200 hover:border-gray-300'
                     }`}
                   >
@@ -302,7 +330,18 @@ export default function ProductDetailsPage() {
                   </button>
                 ))}
               </div>
-            )}
+
+              <button
+                onClick={() => {
+                  const el = document.getElementById('thumbnail-scroll');
+                  el.scrollBy({ left: 100, behavior: 'smooth' });
+                }}
+                className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white hover:bg-gray-50 border border-gray-200 rounded-full p-1 shadow-md transition-all cursor-pointer"
+              >
+                <ChevronRight size={16} className="text-gray-700" />
+              </button>
+            </div>
+          )}
           </div>
 
           {/* Right - Details */}
