@@ -104,11 +104,15 @@ export default function MyOrdersPage() {
     setIsLoginModalOpen(false);
     setIsAuthenticated(true);
     
-    // Dispatch auth change event
     window.dispatchEvent(new Event('authStateChanged'));
     
-    // Reload orders after successful login
     await checkAuthAndLoadOrders();
+  };
+
+  const getPaymentStatusColor = (status) => {
+    if (status === 'PAID') return 'text-green-600';
+    if (status === 'UNPAID') return 'text-yellow-600';
+    return 'text-gray-600';
   };
 
   const getStatusColor = (status) => {
@@ -149,6 +153,8 @@ export default function MyOrdersPage() {
       month: 'short',
       day: 'numeric',
       year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
     });
   };
 
@@ -286,16 +292,21 @@ export default function MyOrdersPage() {
                       <Package className="w-5 h-5 text-[#FF5533]" />
                       <h3 className="font-bold text-gray-900">Order #{order.id}</h3>
                     </div>
-                    <span className={`px-3 py-1 rounded-full text-sm font-semibold ${getStatusBgColor(order.order_status)} ${getStatusColor(order.order_status)}`}>
-                      {order.order_status || 'Pending'}
-                    </span>
+                    <div className="flex flex-col items-end gap-1">
+                      <span className={`px-3 py-1 rounded-full text-sm font-semibold ${getStatusBgColor(order.order_status)} ${getStatusColor(order.order_status)}`}>
+                        {order.order_status || 'Pending'}
+                      </span>
+                      <span className={`px-3 py-1 text-sm font-medium ${getPaymentStatusColor(order.payment_status)}`}>
+                        💳 {order.payment_status || 'Unpaid'}
+                      </span>
+                    </div>
                   </div>
 
                   {/* Order Details */}
                   <div className="space-y-2 mb-4">
                     <div className="flex items-center gap-2 text-gray-600">
                       <Calendar className="w-4 h-4" />
-                      <span className="text-sm">{formatDate(order.order_date)}</span>
+                      <span className="text-sm">{formatDate(order.created_at)}</span>
                     </div>
 
                     <div className="flex items-center gap-2 text-gray-600">

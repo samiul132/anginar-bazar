@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { api, storage } from '@/lib/api';
 import SearchBar from '@/components/SearchBar';
+import NotificationBell from './Notificationbell';
 
 export default function Header({ cartCount = 0 }) {
   const router = useRouter();
@@ -357,6 +358,9 @@ export default function Header({ cartCount = 0 }) {
                   For Order: 01889093967
                 </span>
               </a>
+
+              {/* 🔔 Notification Bell - Mobile */}
+              <NotificationBell />
 
               {/* Download App - Mobile */}
               <Link href="/download-app" className="md:hidden shrink cursor-pointer max-w-[80px]">
