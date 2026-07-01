@@ -114,6 +114,21 @@ export default function CheckoutPage() {
   }, []);
 
   useEffect(() => {
+    if (mounted && cartItems.length > 0 && typeof window !== 'undefined' && window.fbq) {
+      window.fbq('track', 'InitiateCheckout', {
+        content_ids: cartItems.map((item) => String(item.product_id)),
+        contents: cartItems.map((item) => ({
+          id: String(item.product_id),
+          quantity: item.quantity
+        })),
+        value: getCartTotal(),
+        currency: 'BDT',
+        num_items: cartItems.length
+      });
+    }
+  }, [mounted]);
+
+  useEffect(() => {
     setMounted(true);
   }, []);
 

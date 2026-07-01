@@ -1,21 +1,34 @@
 'use client';
-
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { useEffect } from 'react';
 
 export default function OrderSuccessClient() {
   const searchParams = useSearchParams();
-
   const orderId = searchParams.get('orderId') || 'N/A';
   const totalAmount = searchParams.get('total') || '0';
   const paymentMethod = searchParams.get('payment') || 'cod';
   const deliveryType = searchParams.get('delivery') || 'standard';
 
+  useEffect(() => {
+    if (orderId === 'N/A' || typeof window === 'undefined' || !window.fbq) return;
+
+    const trackedKey = `fb_purchase_tracked_${orderId}`;
+    if (sessionStorage.getItem(trackedKey)) return; // refresh e duibar fire hobe na
+
+    window.fbq('track', 'Purchase', {
+      content_ids: [orderId],
+      value: parseFloat(totalAmount),
+      currency: 'BDT'
+    }, { eventID: `purchase_${orderId}` });
+
+    sessionStorage.setItem(trackedKey, '1');
+  }, [orderId, totalAmount]);
+
   const deliveryTimeText =
     deliveryType === 'express'
       ? 'Within 1 hour (Express Delivery)'
       : 'Within 3 hours (Standard Delivery)';
-
   const paymentMethodText =
     paymentMethod === 'cod' ? 'Cash on Delivery' : paymentMethod;
 

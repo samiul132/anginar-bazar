@@ -36,6 +36,22 @@ export default function ProductDetailsPage() {
     }
   }, [slug]);
 
+  useEffect(() => {
+    if (product && typeof window !== 'undefined' && window.fbq) {
+      const salePrice = parseFloat(product.sale_price || '0');
+      const promoPrice = parseFloat(product.promotional_price || '0');
+      const finalPrice = promoPrice > 0 && promoPrice < salePrice ? promoPrice : salePrice;
+
+      window.fbq('track', 'ViewContent', {
+        content_ids: [String(product.id)],
+        content_name: product.product_name,
+        content_type: 'product',
+        value: finalPrice,
+        currency: 'BDT'
+      });
+    }
+  }, [product]);
+
   const fetchProductDetails = async () => {
     setLoading(true);
     setError(null);

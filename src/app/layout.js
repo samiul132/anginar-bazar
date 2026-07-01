@@ -1,5 +1,6 @@
 import './globals.css';
 import ClientLayout from '@/components/ClientLayout';
+import MetaPixel from "@/components/MetaPixel";
 
 export const metadata = {
   title: 'Anginar Bazar - Matlab Uttar, Chandpur\'s Trusted Online Grocery Shop',
@@ -25,6 +26,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="bn">
       <body className="antialiased">
+      <MetaPixel />
         <ClientLayout>
           {children}
         </ClientLayout>

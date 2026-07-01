@@ -273,7 +273,14 @@ export default function OrderDetailsPage() {
   const handlePayNow = async () => {
     setPayMessage(null);
 
-    // popup-blocker এড়াতে click gesture-এর ভেতরেই window খুলে ফেলি
+    if (typeof window !== 'undefined' && window.fbq) {
+      window.fbq('track', 'AddPaymentInfo', {
+        content_ids: [String(order.id)],
+        value: Number(payAmount),
+        currency: 'BDT'
+      });
+    }
+
     const w = 480, h = 720;
     const left = window.screenX + (window.outerWidth - w) / 2;
     const top = window.screenY + (window.outerHeight - h) / 2;

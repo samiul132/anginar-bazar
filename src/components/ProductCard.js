@@ -21,6 +21,16 @@ export default function ProductCard({ product }) {
       image: product.image,
       slug: product.slug || ''
     }, 1);
+
+    if (typeof window !== 'undefined' && window.fbq) {
+      window.fbq('track', 'AddToCart', {
+        content_ids: [String(product.id)],
+        content_name: product.product_name,
+        content_type: 'product',
+        value: finalPrice,
+        currency: 'BDT'
+      });
+    }
   };
 
   return (
